@@ -1,14 +1,17 @@
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
-const admin = require('firebase-admin');
-admin.initializeApp();
-const db = admin.firestore();
+const { initializeApp } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
+const { getMessaging } = require('firebase-admin/messaging');
+
+initializeApp();
+const db = getFirestore();
 
 // Sends a notification to every device where this user turned notifications on.
 async function sendToUser(uid, { title, body, url }) {
   const ref = db.collection('users').doc(uid).collection('tokens');
   const tokens = (await ref.get()).docs.map(d => d.id);
   if (!tokens.length) return { sent: 0 };
-  const res = await admin.messaging().sendEachForMulticast({
+  const res = await getMessaging().sendEachForMulticast({
     tokens,
     data: { title: title || 'PinLab', body: body || '', url: url || './' },
     webpush: { headers: { Urgency: 'normal' } }
