@@ -1,1 +1,5 @@
-{"projects":{"default":"pinlab-f18c8"}}
+{
+  "projects": {
+    "default": "pinlab-f18c8"
+  }
+}
