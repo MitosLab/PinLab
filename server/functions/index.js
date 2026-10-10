@@ -105,10 +105,41 @@ async function redditMirror(url) {
   }
   return null;
 }
+// Site logo: looks for the brand logo in the homepage header, then structured data, then touch icons.
+function attrsOf(tag) { const o = {}; tag.replace(/([\w:-]+)\s*=\s*("([^"]*)"|'([^']*)'|([^\s>]+))/g, (m, k, v, a, b, c) => { o[k.toLowerCase()] = ent(a ?? b ?? c ?? ''); return m; }); return o; }
+function imgSrc(a) { const s = a['data-src'] || a['data-lazy-src'] || a.src || ''; if (s && !/^data:image\/gif|blank|spacer|pixel/i.test(s)) return s; const ss = (a.srcset || a['data-srcset'] || '').split(',').pop(); return ss ? ss.trim().split(/\s+/)[0] : ''; }
+function findLogo(html) {
+  const isLogo = s => /logo|brand|masthead|site-?title/i.test(s || '');
+  const scopes = [(html.match(/<header[\s\S]*?<\/header>/i) || [])[0], (html.match(/<nav[\s\S]*?<\/nav>/i) || [])[0], html.slice(0, 60000)].filter(Boolean);
+  for (const sc of scopes) {
+    const linked = sc.match(/<a[^>]*(?:class|id|aria-label)\s*=\s*["'][^"']*(?:logo|brand|home)[^"']*["'][^>]*>([\s\S]{0,4000}?)<\/a>/i);
+    if (linked) { const im = linked[1].match(/<img\b[^>]*>/i); if (im) { const s = imgSrc(attrsOf(im[0])); if (s) return { src: s }; }
+      const sv = linked[1].match(/<svg[\s\S]*?<\/svg>/i); if (sv && sv[0].length > 200) return { svg: sv[0] }; }
+    for (const im of sc.match(/<img\b[^>]*>/gi) || []) { const a = attrsOf(im); if (isLogo(a.class) || isLogo(a.id) || isLogo(a.alt) || isLogo(a.src) || isLogo(a['data-src'])) { const s = imgSrc(a); if (s) return { src: s }; } }
+    const sv = sc.match(/<svg[^>]*(?:class|id|aria-label)\s*=\s*["'][^"']*logo[^"']*["'][\s\S]*?<\/svg>/i); if (sv) return { svg: sv[0] };
+  }
+  const ld = html.match(/"logo"\s*:\s*(?:\{[^}]*?"url"\s*:\s*)?"([^"]+)"/i); if (ld) return { src: ld[1].replace(/\\\//g, '/') };
+  const ati = html.match(/<link[^>]*rel=["'][^"']*apple-touch-icon[^"']*["'][^>]*>/i); if (ati) { const h = attrsOf(ati[0]).href; if (h) return { src: h, icon: true }; }
+  return null;
+}
+async function siteLogo(url) {
+  let origin; try { origin = new URL(url).origin; } catch (e) { return {}; }
+  const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 9000);
+  try {
+    const r = await fetch(origin + '/', { redirect: 'follow', signal: ctrl.signal, headers: { 'user-agent': SAFARI, accept: 'text/html' } });
+    const html = (await r.text()).slice(0, 600000);
+    const f = findLogo(html); if (!f) return {};
+    if (f.svg) { let s = f.svg; if (!/xmlns=/.test(s)) s = s.replace(/<svg/i, '<svg xmlns="http://www.w3.org/2000/svg"'); s = s.replace(/currentColor/g, '#201e1d'); return { logoData: 'data:image/svg+xml;base64,' + Buffer.from(s).toString('base64'), logoIcon: false }; }
+    const abs = new URL(f.src, r.url).href;
+    const d = await imgData(abs, r.url);
+    return d ? { logoData: d, logoIcon: !!f.icon } : {};
+  } catch (e) { return {}; } finally { clearTimeout(t); }
+}
 exports.preview = onCall({ timeoutSeconds: 30, memory: '512MiB' }, async req => {
   if (!req.auth) throw new HttpsError('unauthenticated', 'Sign in first');
   const url = String((req.data && req.data.url) || '');
   if (!/^https?:\/\//i.test(url)) throw new HttpsError('invalid-argument', 'Bad URL');
+  if (req.data && req.data.logo) return await siteLogo(url);
   const onlyImg = String((req.data && req.data.img) || '');
   if (/^https?:\/\//i.test(onlyImg)) return { imgData: await imgData(onlyImg, url) };
   if (/reddit\.com|redd\.it/i.test(url)) {
