@@ -71,12 +71,36 @@ async function imgTry(src, referer, ua) {
     return 'data:' + type + ';base64,' + buf.toString('base64');
   } catch (e) { return ''; } finally { clearTimeout(t); }
 }
+// Reddit: read the post's own data (title, text, picture) from Reddit's JSON.
+async function redditPost(url) {
+  const m = url.match(/\/comments\/([a-z0-9]+)/i); if (!m) return null;
+  const tries = ['https://www.reddit.com/comments/' + m[1] + '.json?raw_json=1', 'https://old.reddit.com/comments/' + m[1] + '.json?raw_json=1', 'https://api.reddit.com/comments/' + m[1] + '?raw_json=1'];
+  for (const u of tries) {
+    const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 7000);
+    try {
+      const r = await fetch(u, { signal: ctrl.signal, headers: { 'user-agent': 'web:pinlab:1.0 (bookmark preview)', accept: 'application/json' } });
+      if (!r.ok) continue;
+      const j = await r.json(); const d = j && j[0] && j[0].data.children[0].data; if (!d) continue;
+      const pv = d.preview && d.preview.images && d.preview.images[0];
+      const gal = d.media_metadata && Object.values(d.media_metadata)[0];
+      const img = (pv && pv.source && pv.source.url) || (gal && gal.s && (gal.s.u || gal.s.gif)) || (/\.(jpe?g|png|webp|gif)$/i.test(d.url_overridden_by_dest || '') ? d.url_overridden_by_dest : '') || (/^https?:/.test(d.thumbnail || '') ? d.thumbnail : '');
+      return { title: d.title || '', desc: (d.selftext || '').slice(0, 240) || ('r/' + d.subreddit + ' · u/' + d.author), img: ent(img), sub: d.subreddit, author: d.author };
+    } catch (e) {} finally { clearTimeout(t); }
+  }
+  return null;
+}
 exports.preview = onCall({ timeoutSeconds: 30, memory: '512MiB' }, async req => {
   if (!req.auth) throw new HttpsError('unauthenticated', 'Sign in first');
   const url = String((req.data && req.data.url) || '');
   if (!/^https?:\/\//i.test(url)) throw new HttpsError('invalid-argument', 'Bad URL');
   const onlyImg = String((req.data && req.data.img) || '');
   if (/^https?:\/\//i.test(onlyImg)) return { imgData: await imgData(onlyImg, url) };
+  if (/reddit\.com|redd\.it/i.test(url)) {
+    let target = url;
+    if (/\/s\/|redd\.it/i.test(url)) { try { const r = await fetch(url, { redirect: 'follow', headers: { 'user-agent': SAFARI } }); target = r.url || url; } catch (e) {} }
+    const p = await redditPost(target);
+    if (p) { p.rd = true; p.finalUrl = target; if (p.img) p.imgData = await imgData(p.img, target); if (p.img || p.title) return p; }
+  }
   const fbish = /facebook\.com|fb\.watch|fb\.me|fb\.com/i.test(url);
   const bad = t => /^(facebook|log in|log into facebook|log in or sign up to view|instagram)$/i.test((t || '').trim());
   let out = {};
@@ -86,6 +110,8 @@ exports.preview = onCall({ timeoutSeconds: 30, memory: '512MiB' }, async req => 
     out.tried = res.map((d, i) => ({ ua: uas[i].split('/')[0], title: d.title || '', img: !!d.img, error: d.error || '' }));
     for (const d of res) { if (d.error) continue; if (bad(d.title)) d.title = '';
       out = { ...d, ...out, img: out.img || d.img, title: out.title || d.title, desc: out.desc || d.desc }; }
+    if (out.title) out.title = out.title.replace(/^From the (\S+) community on Reddit:\s*/i, '');
+    if (/^Explore this post and more from/i.test(out.desc || '')) out.desc = '';
     if (out.img && req.data.withImage !== false) out.imgData = await imgData(out.img, out.finalUrl || url);
     return out;
   } catch (e) { return { error: String(e.message || e) }; }
