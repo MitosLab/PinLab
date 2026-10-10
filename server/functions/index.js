@@ -89,6 +89,22 @@ async function redditPost(url) {
   }
   return null;
 }
+// Fallback: link-fixer mirrors (made for Discord/Telegram) that repeat the post's real title, text and photo.
+async function redditMirror(url) {
+  const path = (() => { try { return new URL(url).pathname; } catch (e) { return ''; } })();
+  if (!/\/comments\//.test(path)) return null;
+  for (const host of ['https://rxddit.com', 'https://vxreddit.com', 'https://www.rxddit.com']) {
+    try {
+      const d = await grab(host + path, 'Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)', 7000);
+      const title = (d.title || '').replace(/^From the (\S+) community on Reddit:\s*/i, '');
+      if (!title || /^(reddit|rxddit|vxreddit)/i.test(title)) continue;
+      const desc = /^Explore this post and more from/i.test(d.desc || '') ? '' : (d.desc || '');
+      const sub = (path.match(/\/r\/([^/]+)/) || [])[1] || '';
+      return { title, desc: desc || (sub ? 'r/' + sub : ''), img: /share\.redd\.it\/preview/.test(d.img || '') ? '' : d.img, sub };
+    } catch (e) {}
+  }
+  return null;
+}
 exports.preview = onCall({ timeoutSeconds: 30, memory: '512MiB' }, async req => {
   if (!req.auth) throw new HttpsError('unauthenticated', 'Sign in first');
   const url = String((req.data && req.data.url) || '');
@@ -98,7 +114,8 @@ exports.preview = onCall({ timeoutSeconds: 30, memory: '512MiB' }, async req => 
   if (/reddit\.com|redd\.it/i.test(url)) {
     let target = url;
     if (/\/s\/|redd\.it/i.test(url)) { try { const r = await fetch(url, { redirect: 'follow', headers: { 'user-agent': SAFARI } }); target = r.url || url; } catch (e) {} }
-    const p = await redditPost(target);
+    let p = await redditPost(target);
+    if (!p) p = await redditMirror(target);
     if (p) { p.rd = true; p.finalUrl = target; if (p.img) p.imgData = await imgData(p.img, target); if (p.img || p.title) return p; }
   }
   const fbish = /facebook\.com|fb\.watch|fb\.me|fb\.com/i.test(url);
