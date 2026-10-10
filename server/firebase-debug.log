@@ -1,0 +1,120 @@
+[debug] [2026-10-10T05:12:40.175Z] ----------------------------------------------------------------------
+[debug] [2026-10-10T05:12:40.179Z] Command:       /usr/local/bin/node /usr/local/bin/firebase deploy --only functions
+[debug] [2026-10-10T05:12:40.179Z] CLI Version:   15.32.1
+[debug] [2026-10-10T05:12:40.179Z] Platform:      darwin
+[debug] [2026-10-10T05:12:40.179Z] Node Version:  v24.21.0
+[debug] [2026-10-10T05:12:40.179Z] Detected Agent: unknown
+[debug] [2026-10-10T05:12:40.179Z] Time:          Sat Oct 10 2026 09:12:40 GMT+0400 (Gulf Standard Time)
+[debug] [2026-10-10T05:12:40.179Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-10-10T05:12:40.189Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-10-10T05:12:40.803Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-10-10T05:12:40.803Z] > authorizing via signed-in user (cmorales.rx@gmail.com)
+[debug] [2026-10-10T05:12:40.803Z] [iam] checking project pinlab-f18c8 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2026-10-10T05:12:40.803Z] Checked if tokens are valid: false, expires at: 1791555552693
+[debug] [2026-10-10T05:12:40.803Z] Checked if tokens are valid: false, expires at: 1791555552693
+[debug] [2026-10-10T05:12:40.803Z] > refreshing access token with scopes: []
+[debug] [2026-10-10T05:12:40.804Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-10-10T05:12:40.804Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-10-10T05:12:41.142Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-10-10T05:12:41.142Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-10-10T05:12:41.153Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/pinlab-f18c8:testIamPermissions [none]
+[debug] [2026-10-10T05:12:41.153Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/pinlab-f18c8:testIamPermissions  x-goog-user-project=pinlab-f18c8
+[debug] [2026-10-10T05:12:41.153Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/pinlab-f18c8:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-10-10T05:12:41.408Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-10-10T05:12:41.408Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2026-10-10T05:12:42.718Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/pinlab-f18c8:testIamPermissions 200
+[debug] [2026-10-10T05:12:42.718Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/pinlab-f18c8:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-10-10T05:12:42.719Z] Checked if tokens are valid: true, expires at: 1791612760142
+[debug] [2026-10-10T05:12:42.719Z] Checked if tokens are valid: true, expires at: 1791612760142
+[debug] [2026-10-10T05:12:42.719Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/pinlab-f18c8/serviceAccounts/pinlab-f18c8@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2026-10-10T05:12:42.719Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/pinlab-f18c8/serviceAccounts/pinlab-f18c8@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2026-10-10T05:12:44.270Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/pinlab-f18c8/serviceAccounts/pinlab-f18c8@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2026-10-10T05:12:44.271Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/pinlab-f18c8/serviceAccounts/pinlab-f18c8@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[info] 
+[info] === Deploying to 'pinlab-f18c8'...
+[info] 
+[info] i  deploying functions 
+[debug] [2026-10-10T05:12:44.274Z] Checked if tokens are valid: true, expires at: 1791612760142
+[debug] [2026-10-10T05:12:44.274Z] Checked if tokens are valid: true, expires at: 1791612760142
+[debug] [2026-10-10T05:12:44.274Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/pinlab-f18c8 [none]
+[debug] [2026-10-10T05:12:44.575Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/pinlab-f18c8 200
+[debug] [2026-10-10T05:12:44.575Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/pinlab-f18c8 {"projectNumber":"587931590172","projectId":"pinlab-f18c8","lifecycleState":"ACTIVE","name":"PinLab","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2026-10-08T11:39:57.215Z","parent":{"type":"organization","id":"357981404019"}}
+[info] i  functions: preparing codebase default for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2026-10-10T05:12:44.578Z] Checked if tokens are valid: true, expires at: 1791612760142
+[debug] [2026-10-10T05:12:44.578Z] Checked if tokens are valid: true, expires at: 1791612760142
+[debug] [2026-10-10T05:12:44.578Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/pinlab-f18c8/adminSdkConfig [none]
+[debug] [2026-10-10T05:12:45.133Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/pinlab-f18c8/adminSdkConfig 200
+[debug] [2026-10-10T05:12:45.134Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/pinlab-f18c8/adminSdkConfig {"projectId":"pinlab-f18c8","storageBucket":"pinlab-f18c8.firebasestorage.app"}
+[debug] [2026-10-10T05:12:45.134Z] Checked if tokens are valid: true, expires at: 1791612760142
+[debug] [2026-10-10T05:12:45.134Z] Checked if tokens are valid: true, expires at: 1791612760142
+[debug] [2026-10-10T05:12:45.134Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/pinlab-f18c8/configs [none]
+[debug] [2026-10-10T05:12:45.791Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/pinlab-f18c8/configs 200
+[debug] [2026-10-10T05:12:45.791Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/pinlab-f18c8/configs {}
+[debug] [2026-10-10T05:12:45.795Z] Validating nodejs source
+[warn] ⚠  functions: Couldn't find firebase-functions package in your source code. Have you run 'npm install'? 
+[debug] [2026-10-10T05:12:45.796Z] getFunctionsSDKVersion encountered error: Cannot find module 'firebase-functions'
+Require stack:
+- /usr/local/lib/node_modules/firebase-tools/lib/deploy/functions/runtimes/node/versioning.js
+- /usr/local/lib/node_modules/firebase-tools/lib/deploy/functions/runtimes/node/index.js
+- /usr/local/lib/node_modules/firebase-tools/lib/deploy/functions/runtimes/index.js
+- /usr/local/lib/node_modules/firebase-tools/lib/deploy/functions/prepare.js
+- /usr/local/lib/node_modules/firebase-tools/lib/emulator/functionsEmulatorShared.js
+- /usr/local/lib/node_modules/firebase-tools/lib/frameworks/index.js
+- /usr/local/lib/node_modules/firebase-tools/lib/deploy/hosting/prepare.js
+- /usr/local/lib/node_modules/firebase-tools/lib/deploy/hosting/index.js
+- /usr/local/lib/node_modules/firebase-tools/lib/deploy/index.js
+- /usr/local/lib/node_modules/firebase-tools/lib/checkValidTargetFilters.js
+- /usr/local/lib/node_modules/firebase-tools/lib/commands/deploy.js
+- /usr/local/lib/node_modules/firebase-tools/lib/commands/index.js
+- /usr/local/lib/node_modules/firebase-tools/lib/index.js
+- /usr/local/lib/node_modules/firebase-tools/lib/bin/cli.js
+- /usr/local/lib/node_modules/firebase-tools/lib/bin/firebase.js {"code":"MODULE_NOT_FOUND","requireStack":["/usr/local/lib/node_modules/firebase-tools/lib/deploy/functions/runtimes/node/versioning.js","/usr/local/lib/node_modules/firebase-tools/lib/deploy/functions/runtimes/node/index.js","/usr/local/lib/node_modules/firebase-tools/lib/deploy/functions/runtimes/index.js","/usr/local/lib/node_modules/firebase-tools/lib/deploy/functions/prepare.js","/usr/local/lib/node_modules/firebase-tools/lib/emulator/functionsEmulatorShared.js","/usr/local/lib/node_modules/firebase-tools/lib/frameworks/index.js","/usr/local/lib/node_modules/firebase-tools/lib/deploy/hosting/prepare.js","/usr/local/lib/node_modules/firebase-tools/lib/deploy/hosting/index.js","/usr/local/lib/node_modules/firebase-tools/lib/deploy/index.js","/usr/local/lib/node_modules/firebase-tools/lib/checkValidTargetFilters.js","/usr/local/lib/node_modules/firebase-tools/lib/commands/deploy.js","/usr/local/lib/node_modules/firebase-tools/lib/commands/index.js","/usr/local/lib/node_modules/firebase-tools/lib/index.js","/usr/local/lib/node_modules/firebase-tools/lib/bin/cli.js","/usr/local/lib/node_modules/firebase-tools/lib/bin/firebase.js"]}
+[debug] [2026-10-10T05:12:45.798Z] checkFunctionsSDKVersion encountered error: Invalid Version:  {}
+[debug] [2026-10-10T05:12:45.798Z] > [functions] package.json contents: {
+  "name": "pinlab-functions",
+  "private": true,
+  "main": "index.js",
+  "engines": {
+    "node": "22"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.0.1"
+  }
+}
+[debug] [2026-10-10T05:12:45.798Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
+[debug] [2026-10-10T05:12:45.799Z] Could not parse firebase-functions version '' into semver.
+[debug] [2026-10-10T05:12:45.800Z] Could not find functions.yaml. Must use http discovery
+[debug] [2026-10-10T05:12:45.810Z] Error: Cannot find module 'firebase-functions'
+Require stack:
+- /usr/local/lib/node_modules/firebase-tools/lib/deploy/functions/runtimes/node/index.js
+- /usr/local/lib/node_modules/firebase-tools/lib/deploy/functions/runtimes/index.js
+- /usr/local/lib/node_modules/firebase-tools/lib/deploy/functions/prepare.js
+- /usr/local/lib/node_modules/firebase-tools/lib/emulator/functionsEmulatorShared.js
+- /usr/local/lib/node_modules/firebase-tools/lib/frameworks/index.js
+- /usr/local/lib/node_modules/firebase-tools/lib/deploy/hosting/prepare.js
+- /usr/local/lib/node_modules/firebase-tools/lib/deploy/hosting/index.js
+- /usr/local/lib/node_modules/firebase-tools/lib/deploy/index.js
+- /usr/local/lib/node_modules/firebase-tools/lib/checkValidTargetFilters.js
+- /usr/local/lib/node_modules/firebase-tools/lib/commands/deploy.js
+- /usr/local/lib/node_modules/firebase-tools/lib/commands/index.js
+- /usr/local/lib/node_modules/firebase-tools/lib/index.js
+- /usr/local/lib/node_modules/firebase-tools/lib/bin/cli.js
+- /usr/local/lib/node_modules/firebase-tools/lib/bin/firebase.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1564:15)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1118:27)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1169:12)
+    at require.resolve (node:internal/modules/helpers:175:31)
+    at Delegate.findFunctionsBinary (/usr/local/lib/node_modules/firebase-tools/lib/deploy/functions/runtimes/node/index.js:98:33)
+    at Delegate.spawnFunctionsProcess (/usr/local/lib/node_modules/firebase-tools/lib/deploy/functions/runtimes/node/index.js:128:30)
+    at Delegate.serveAdmin (/usr/local/lib/node_modules/firebase-tools/lib/deploy/functions/runtimes/node/index.js:149:35)
+    at Delegate.discoverBuild (/usr/local/lib/node_modules/firebase-tools/lib/deploy/functions/runtimes/node/index.js:192:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async loadCodebases (/usr/local/lib/node_modules/firebase-tools/lib/deploy/functions/prepare.js:531:33)
+[error] 
+[error] Error: An unexpected error has occurred.
