@@ -74,12 +74,11 @@ exports.preview = onCall({ timeoutSeconds: 30, memory: '512MiB' }, async req => 
   const bad = t => /^(facebook|log in|log into facebook|log in or sign up to view|instagram)$/i.test((t || '').trim());
   let out = {};
   try {
-    for (const ua of (fbish ? [...BOT_UAS, SAFARI] : [SAFARI, BOT_UAS[0]])) {
-      let d; try { d = await grab(url, ua, 9000); } catch (e) { continue; }
-      if (bad(d.title)) d.title = '';
-      out = { ...d, ...out, img: out.img || d.img, title: out.title || d.title, desc: out.desc || d.desc };
-      if (out.img && out.title) break;
-    }
+    const uas = fbish ? [...BOT_UAS, SAFARI] : [SAFARI, BOT_UAS[0]];
+    const res = await Promise.all(uas.map(ua => grab(url, ua, 8000).catch(e => ({ error: String(e.message || e) }))));
+    out.tried = res.map((d, i) => ({ ua: uas[i].split('/')[0], title: d.title || '', img: !!d.img, error: d.error || '' }));
+    for (const d of res) { if (d.error) continue; if (bad(d.title)) d.title = '';
+      out = { ...d, ...out, img: out.img || d.img, title: out.title || d.title, desc: out.desc || d.desc }; }
     if (out.img && req.data.withImage !== false) out.imgData = await imgData(out.img, out.finalUrl || url);
     return out;
   } catch (e) { return { error: String(e.message || e) }; }
