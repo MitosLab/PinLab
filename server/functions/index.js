@@ -56,9 +56,14 @@ async function grab(url, ua, ms) {
 }
 // Downloads the image so the app keeps its own copy (Facebook image links expire and block other sites).
 async function imgData(src, referer) {
+  const fbImg = /fbsbx\.com|fbcdn\.net|facebook\.com/i.test(src);
+  for (const ua of (fbImg ? [BOT_UAS[0], SAFARI] : [SAFARI, BOT_UAS[0]])) { const d = await imgTry(src, referer, ua); if (d) return d; }
+  return '';
+}
+async function imgTry(src, referer, ua) {
   const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 8000);
   try {
-    const r = await fetch(src, { signal: ctrl.signal, headers: { 'user-agent': SAFARI, referer: referer || '' } });
+    const r = await fetch(src, { redirect: 'follow', signal: ctrl.signal, headers: { 'user-agent': ua, accept: 'image/*,*/*;q=0.8', referer: referer || '' } });
     const type = (r.headers.get('content-type') || '').split(';')[0];
     if (!r.ok || !/^image\//.test(type)) return '';
     const buf = Buffer.from(await r.arrayBuffer());
@@ -70,6 +75,8 @@ exports.preview = onCall({ timeoutSeconds: 30, memory: '512MiB' }, async req => 
   if (!req.auth) throw new HttpsError('unauthenticated', 'Sign in first');
   const url = String((req.data && req.data.url) || '');
   if (!/^https?:\/\//i.test(url)) throw new HttpsError('invalid-argument', 'Bad URL');
+  const onlyImg = String((req.data && req.data.img) || '');
+  if (/^https?:\/\//i.test(onlyImg)) return { imgData: await imgData(onlyImg, url) };
   const fbish = /facebook\.com|fb\.watch|fb\.me|fb\.com/i.test(url);
   const bad = t => /^(facebook|log in|log into facebook|log in or sign up to view|instagram)$/i.test((t || '').trim());
   let out = {};
