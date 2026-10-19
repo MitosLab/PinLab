@@ -1,4 +1,16 @@
 {
-  "functions": { "source": "functions" },
-  "hosting": { "public": "site", "cleanUrls": true }
+  "functions": {
+    "source": "functions"
+  },
+  "hosting": {
+    "public": "site",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "cleanUrls": true,
+    "headers": [
+      {
+        "source": "**/*.html",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      }
+    ]
+  }
 }
