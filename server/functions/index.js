@@ -122,18 +122,42 @@ function findLogo(html) {
   const ati = html.match(/<link[^>]*rel=["'][^"']*apple-touch-icon[^"']*["'][^>]*>/i); if (ati) { const h = attrsOf(ati[0]).href; if (h) return { src: h, icon: true }; }
   return null;
 }
+// Fallback: official logo from Wikidata (the database behind Wikipedia), matched by the site's address.
+async function wikiLogo(host) {
+  const WUA = { 'user-agent': 'PinLab/1.0 (bookmark app; logo lookup)' };
+  const base = host.replace(/^www\./, ''); const stem = base.split('.').slice(-2, -1)[0] || base;
+  const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const s = await (await fetch('https://www.wikidata.org/w/api.php?action=wbsearchentities&format=json&language=en&limit=8&search=' + encodeURIComponent(stem), { headers: WUA, signal: ctrl.signal })).json();
+    const ids = (s.search || []).map(x => x.id); if (!ids.length) return '';
+    const e = await (await fetch('https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&props=claims&ids=' + ids.join('|'), { headers: WUA, signal: ctrl.signal })).json();
+    for (const id of ids) {
+      const c = (e.entities[id] || {}).claims || {};
+      const sites = (c.P856 || []).map(x => String((x.mainsnak.datavalue || {}).value || '').toLowerCase());
+      const logo = ((c.P154 || [])[0] || {}).mainsnak;
+      if (logo && logo.datavalue && sites.some(u => u.includes('//' + base) || u.includes('.' + base))) return 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(logo.datavalue.value) + '?width=400';
+    }
+  } catch (e) {} finally { clearTimeout(t); }
+  return '';
+}
 async function siteLogo(url) {
   let origin; try { origin = new URL(url).origin; } catch (e) { return {}; }
   const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 9000);
   try {
     const r = await fetch(origin + '/', { redirect: 'follow', signal: ctrl.signal, headers: { 'user-agent': SAFARI, accept: 'text/html' } });
     const html = (await r.text()).slice(0, 600000);
-    const f = findLogo(html); if (!f) return {};
+    let f = findLogo(html);
+    if (!f || f.icon) { const w = await wikiLogo(new URL(r.url).hostname); if (w) { const d = await imgData(w, ''); if (d) return { logoData: d, logoIcon: false, from: 'wikidata' }; } }
+    if (!f) return {};
     if (f.svg) { let s = f.svg; if (!/xmlns=/.test(s)) s = s.replace(/<svg/i, '<svg xmlns="http://www.w3.org/2000/svg"'); s = s.replace(/currentColor/g, '#201e1d'); return { logoData: 'data:image/svg+xml;base64,' + Buffer.from(s).toString('base64'), logoIcon: false }; }
     const abs = new URL(f.src, r.url).href;
     const d = await imgData(abs, r.url);
     return d ? { logoData: d, logoIcon: !!f.icon } : {};
-  } catch (e) { return {}; } finally { clearTimeout(t); }
+  } catch (e) {
+    let host = ''; try { host = new URL(url).hostname; } catch (x) {}
+    const w = host && await wikiLogo(host); if (w) { const d = await imgData(w, ''); if (d) return { logoData: d, logoIcon: false, from: 'wikidata' }; }
+    return {};
+  } finally { clearTimeout(t); }
 }
 exports.preview = onCall({ timeoutSeconds: 30, memory: '512MiB' }, async req => {
   if (!req.auth) throw new HttpsError('unauthenticated', 'Sign in first');
